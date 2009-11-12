@@ -62,8 +62,33 @@ def publish(blog):
         shutil.copyfile(os.path.join(blog.settings['blog_dir'], f),
                         os.path.join(blog.settings['out_path'], 'static', os.path.basename(f)))
 
+    # Publish Tag pages
 
-  # Publish Posts
+    tags = {}
+    for p in blog.posts:
+        for t in p.meta['tags']:
+            if t in tags:
+                tags[t].append(p)
+            else:
+                tags[t] = [p]
+
+    for t in tags:
+        posts = sorted(tags[t], key=lambda p: p.meta['published'])[:][::-1]
+        title = "Posts Tagged %s" % t
+        temp_path = t.split(' ')               #workaround to allow spaces  
+        blog.tag_slugs[t] = '-'.join(temp_path)#in tags
+        output_path = "tag/%s.html" % blog.tag_slugs[t]
+        publish_posts(
+                posts, 
+                blog.env.get_template("posts.html"), 
+                blog, 
+                output_path, 
+                title=title
+                )
+        print "Published Tag Page for %s" % t
+  
+
+    # Publish Posts
     for p in blog.posts:
         publish_post(p, blog.env.get_template('post.html'), blog)
         print "Published Post %s" % p.title
@@ -114,28 +139,6 @@ def publish(blog):
     # Publish Monthly Archives
 
     # Publish Yearly Archives
-
-    # Publish Tag pages
-    tags = {}
-    for p in blog.posts:
-        for t in p.meta['tags']:
-            if t in tags:
-                tags[t].append(p)
-            else:
-                tags[t] = [p]
-
-    for t in tags:
-        posts = sorted(tags[t], key=lambda p: p.meta['published'])[:][::-1]
-        title = "Posts Tagged %s" % t
-        output_path = "tag/%s.html" % t
-        publish_posts(
-                posts, 
-                blog.env.get_template("posts.html"), 
-                blog, 
-                output_path, 
-                title=title
-                )
-        print "Published Tag Page for %s" % t
 
 if __name__ == '__main__':
     path = sys.argv[1]

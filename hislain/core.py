@@ -88,7 +88,6 @@ class Block():
                 file.write(("%s: %s" % (k, v)) + '\n')
 
         file.write('\n')
-
         file.write(self.content)
 
 class Blog():
@@ -129,7 +128,7 @@ class Blog():
             if plugin_file.endswith('.py'):
                 plugin = imp.load_source(os.path.basename(plugin_file).split('.')[0], os.path.join(plugins_path,plugin_file))
                 plugin.main(self)
-       
+        self.tag_slugs = {}
                     
 def read_config(file):
     return yaml.load(file)
